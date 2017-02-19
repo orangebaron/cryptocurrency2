@@ -1,7 +1,7 @@
 package main
 
 import "fmt"
-//import "math/big"
+import "math/big"
 import "crypto/elliptic"
 import "crypto/sha256"
 import "crypto/rand"
@@ -9,6 +9,56 @@ import "crypto/ecdsa"
 import "io/ioutil"
 import "os"
 
+//TXNS,BLOCKS,AND CHAIN
+type Otp struct {
+	priv ecdsa.PrivateKey
+	amt int
+}
+type TxnSig struct {
+	pub ecdsa.PublicKey
+	r big.Int
+	s big.Int
+}
+type Txn struct { //hash before and after transaction signatures can be calculated
+	inputs []Txn
+	outputs []Otp
+	transactionSigs []TxnSig
+}
+type Block struct { //mining reward, hit, difficulty, and hash can be calculated
+	transactions []Txn //are both this and merkle tree hash necessary?
+	merkleTreeHash []byte
+	miner ecdsa.PublicKey
+	timeSinceGenesis big.Int //lots of big ints below, are they all necessary?
+	blockNum big.Int
+	target big.Int
+	lastBlockSignedHashR big.Int
+	lastBlockSignedHashS big.Int
+	hash []byte
+}
+type Chain struct {
+	blocks []Block
+	totalDifficulty big.Int
+	totalSupply big.Int
+	genesisTime big.Int //genesis unix time
+}
+//BASIC FUNCTIONS
+func (txn Txn)toByte(beforeSigs bool) []byte {
+	return []byte("do this")
+} 
+func (block Block)toByte() []byte {
+	return []byte("do this")
+}
+
+func (txn Txn)hash(beforeSigs bool) []byte {
+	sha := sha256.New()
+	sha.Write(txn.toByte(beforeSigs))
+	return sha.Sum(nil)
+}
+
+func addBlock(file os.File,block Block) (int,error) {
+	return file.Write(block.toByte())
+}
+//MAIN LOOP
 func main() {
 	h := sha256.New()
 	h.Write([]byte("hello world\n"))
